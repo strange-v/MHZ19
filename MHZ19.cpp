@@ -16,13 +16,8 @@ MHZ19::~MHZ19()
 	_ss = nullptr;
 }
 
-int MHZ19::getCO2(bool useCache)
+int MHZ19::getCO2()
 {
-	if (!useCache)
-	{
-		_result = retrieveData();
-	}
-
 	if (_result == 0)
 	{
 		return bytes2int(_response[2], _response[3]);
@@ -30,13 +25,8 @@ int MHZ19::getCO2(bool useCache)
 	return _result;
 }
 
-int MHZ19::getTemperature(bool useCache)
+int MHZ19::getTemperature()
 {
-	if (!useCache)
-	{
-		_result = retrieveData();
-	}
-
 	if (_result == 0)
 	{
 		int value = static_cast<int>(_response[4]);
@@ -45,14 +35,9 @@ int MHZ19::getTemperature(bool useCache)
 	return _result;
 }
 
-int MHZ19::getAccuracy(bool useCache)
+int MHZ19::getAccuracy()
 {
-	if (!useCache)
-	{
-		_result = retrieveData();
-	}
-
-	if (_result == 0)
+	if (_result == MHZ19_RESULT_OK)
 	{
 		int value = static_cast<int>(_response[4]);
 		return value;
@@ -60,22 +45,22 @@ int MHZ19::getAccuracy(bool useCache)
 	return _result;
 }
 
-int MHZ19::retrieveData()
+MHZ19_RESULT MHZ19::retrieveData()
 {
 	byte cmd[9] = { 0xFF,0x01,0x86,0x00,0x00,0x00,0x00,0x00,0x79 };
 	for (int i = 0; i < 9; i++) {
 		_response[i] = 0;
 	}
 
-	if (_ss)
+	if (_hs)
 	{
-		while (_ss->available()) { _ss->read(); }
-		_ss->write(cmd, 9);
+		while (_hs->available()) { _hs->read(); }
+		_hs->write(cmd, 9);
 	}
 	else
 	{
 		while (_ss->available()) { _ss->read(); }
-		_hs->write(cmd, 9);
+		_ss->write(cmd, 9);
 	}
 	
 	memset(_response, 0, 9);
@@ -91,13 +76,15 @@ int MHZ19::retrieveData()
 
 	byte crc = calcResponseCRC();
 
+	_result = MHZ19_RESULT_OK;
 	if (_response[0] != 0xFF)
-		return -1;
+		_result = MHZ19_RESULT_ERR_FB;
 	if (_response[1] != 0x86)
-		return -2;
+		_result = MHZ19_RESULT_ERR_SB;
 	if (_response[8] != crc)
-		return -3;
-	return 0;
+		_result = MHZ19_RESULT_ERR_CRC;
+	
+	return _result;
 }
 
 int MHZ19::bytes2int(byte h, byte l)
