@@ -24,7 +24,7 @@ private:
 	HardwareSerial * _hs = nullptr;;
 	SoftwareSerial * _ss = nullptr;;
 	byte _response[9];
-	int _result;
+	MHZ19_RESULT _result;
 
 	int bytes2int(byte h, byte l);
 	byte calcResponseCRC();
