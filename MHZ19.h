@@ -20,13 +20,16 @@ public:
 	int getCO2();
 	int getTemperature();
 	int getAccuracy();
+
+	void sendCommand(byte command, byte high = 0, byte low = 0);
 private:
-	HardwareSerial * _hs = nullptr;;
-	SoftwareSerial * _ss = nullptr;;
+	HardwareSerial * _hs = nullptr;
+	SoftwareSerial * _ss = nullptr;
 	byte _response[9];
 	int _result;
 
+	void write(byte *data, byte len);
 	int bytes2int(byte h, byte l);
-	byte calcResponseCRC();
+	byte calcCRC(byte *data);
 };
 

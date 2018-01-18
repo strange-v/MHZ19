@@ -45,6 +45,26 @@ int MHZ19::getAccuracy()
 	return _result;
 }
 
+void MHZ19::sendCommand(byte command, byte high = 0, byte low = 0)
+{
+	byte cmd[9] = { 0xFF,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00 };
+	cmd[2] = command;
+	cmd[3] = high;
+	cmd[4] = low;
+	cmd[8] = calcCRC(cmd);
+
+	write(cmd, 9);
+
+	if (_hs)
+	{
+		while (_hs->available()) { _hs->read(); }
+	}
+	else
+	{
+		while (_ss->available()) { _ss->read(); }
+	}
+}
+
 MHZ19_RESULT MHZ19::retrieveData()
 {
 	byte cmd[9] = { 0xFF,0x01,0x86,0x00,0x00,0x00,0x00,0x00,0x79 };
@@ -52,16 +72,7 @@ MHZ19_RESULT MHZ19::retrieveData()
 		_response[i] = 0;
 	}
 
-	if (_hs)
-	{
-		while (_hs->available()) { _hs->read(); }
-		_hs->write(cmd, 9);
-	}
-	else
-	{
-		while (_ss->available()) { _ss->read(); }
-		_ss->write(cmd, 9);
-	}
+	write(cmd, 9);
 	
 	memset(_response, 0, 9);
 
@@ -74,7 +85,7 @@ MHZ19_RESULT MHZ19::retrieveData()
 		_ss->readBytes(_response, 9);
 	}
 
-	byte crc = calcResponseCRC();
+	byte crc = calcCRC(_response);
 
 	_result = MHZ19_RESULT_OK;
 	if (_response[0] != 0xFF)
@@ -87,6 +98,20 @@ MHZ19_RESULT MHZ19::retrieveData()
 	return _result;
 }
 
+void MHZ19::write(byte *data, byte len)
+{
+	if (_hs)
+	{
+		while (_hs->available()) { _hs->read(); }
+		_hs->write(data, len);
+	}
+	else
+	{
+		while (_ss->available()) { _ss->read(); }
+		_ss->write(data, len);
+	}
+}
+
 int MHZ19::bytes2int(byte h, byte l)
 {
 	int high = static_cast<int>(h);
@@ -94,13 +119,13 @@ int MHZ19::bytes2int(byte h, byte l)
 	return (256 * high) + low;
 }
 
-byte MHZ19::calcResponseCRC()
+byte MHZ19::calcCRC(byte * data)
 {
 	byte i;
 	byte crc = 0;
 	for (i = 1; i < 8; i++)
 	{
-		crc += _response[i];
+		crc += data[i];
 	}
 	crc = 255 - crc;
 	crc++;
