@@ -26,7 +26,7 @@ private:
 	HardwareSerial * _hs = nullptr;
 	SoftwareSerial * _ss = nullptr;
 	byte _response[9];
-	int _result;
+	MHZ19_RESULT _result;
 
 	void write(byte *data, byte len);
 	int bytes2int(byte h, byte l);
