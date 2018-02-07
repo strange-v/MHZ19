@@ -45,12 +45,15 @@ int MHZ19::getAccuracy()
 	return _result;
 }
 
-void MHZ19::sendCommand(byte command, byte high = 0, byte low = 0)
+void MHZ19::sendCommand(byte command, byte b3 = 0, byte b4 = 0, byte b5 = 0, byte b6 = 0, byte b7 = 0)
 {
 	byte cmd[9] = { 0xFF,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00 };
 	cmd[2] = command;
-	cmd[3] = high;
-	cmd[4] = low;
+	cmd[3] = b3;
+	cmd[4] = b4;
+	cmd[5] = b5;
+	cmd[6] = b6;
+	cmd[7] = b7;
 	cmd[8] = calcCRC(cmd);
 
 	write(cmd, 9);
