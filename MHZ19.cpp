@@ -45,7 +45,7 @@ int MHZ19::getAccuracy()
 	return _result;
 }
 
-void MHZ19::sendCommand(byte command, byte b3 = 0, byte b4 = 0, byte b5 = 0, byte b6 = 0, byte b7 = 0)
+void MHZ19::sendCommand(byte command, byte b3, byte b4, byte b5, byte b6, byte b7)
 {
 	byte cmd[9] = { 0xFF,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00 };
 	cmd[2] = command;
