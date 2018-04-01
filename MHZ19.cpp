@@ -56,20 +56,10 @@ void MHZ19::sendCommand(byte command, byte b3, byte b4, byte b5, byte b6, byte b
 	cmd[7] = b7;
 	cmd[8] = calcCRC(cmd);
 
-	write(cmd, 9);
-/*
-	if (_hs)
-	{
-		while (_hs->available()) { _hs->read(); }
-	}
-	else
-	{
-		while (_ss->available()) { _ss->read(); }
-	}
-*/	
+	write(cmd, 9);	
 }
 
-MHZ19_RESULT MHZ19::receiveAnswer(byte (*cmd)[9]) {
+MHZ19_RESULT MHZ19::receiveResponse(byte (*cmd)[9]) {
 	memset(*cmd, 0, 9);
 
 	if (_hs)

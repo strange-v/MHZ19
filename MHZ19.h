@@ -21,9 +21,8 @@ public:
 	int getTemperature();
 	int getAccuracy();
 	
-	MHZ19_RESULT receiveAnswer(byte (*cmd)[9]);	
-
 	void sendCommand(byte command, byte b3 = 0, byte b4 = 0, byte b5 = 0, byte b6 = 0, byte b7 = 0);
+	MHZ19_RESULT receiveResponse(byte (*cmd)[9]);	
 private:
 	HardwareSerial * _hs = nullptr;
 	SoftwareSerial * _ss = nullptr;
