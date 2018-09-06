@@ -25,6 +25,16 @@ int MHZ19::getCO2()
 	return _result;
 }
 
+int MHZ19::getMinCO2x24()
+{
+	if (_result == 0)
+	{
+		return bytes2int(_response[6], _response[7]);
+	}
+	return _result;
+}
+
+
 int MHZ19::getTemperature()
 {
 	if (_result == 0)
