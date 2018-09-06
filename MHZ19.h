@@ -8,6 +8,14 @@ enum MHZ19_RESULT {
 	MHZ19_RESULT_ERR_SB,
 	MHZ19_RESULT_ERR_CRC
 };
+enum MHZ19_MEASUREMENT {
+	PPM1000,
+	PPM2000,
+	PPM3000,
+	PPM5000,
+	PPM10000
+
+};
 
 class MHZ19
 {
@@ -20,6 +28,13 @@ public:
 	int getCO2();
 	int getTemperature();
 	int getAccuracy();
+	int getMinCO2x24();
+
+	MHZ19_RESULT setAccuracy(MHZ19_MEASUREMENT _acc);
+
+	void calibrateZero();
+	void calibrateSpan(int ppm);
+	void setAutoCalibration(bool mode);	
 	
 	void sendCommand(byte command, byte b3 = 0, byte b4 = 0, byte b5 = 0, byte b6 = 0, byte b7 = 0);
 	MHZ19_RESULT receiveResponse(byte (*cmd)[9]);	
