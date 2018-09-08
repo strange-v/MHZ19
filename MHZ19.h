@@ -8,12 +8,12 @@ enum MHZ19_RESULT {
 	MHZ19_RESULT_ERR_SB,
 	MHZ19_RESULT_ERR_CRC
 };
-enum MHZ19_MEASUREMENT {
-	PPM1000,
-	PPM2000,
-	PPM3000,
-	PPM5000,
-	PPM10000
+enum MHZ19_RANGE {
+	MHZ19_RANGE_1000,
+	MHZ19_RANGE_2000,
+	MHZ19_RANGE_3000,
+	MHZ19_RANGE_5000,
+	MHZ19_RANGE_10000
 
 };
 
@@ -23,17 +23,17 @@ public:
 	MHZ19(HardwareSerial * serial);
 	MHZ19(SoftwareSerial * serial);
 	~MHZ19();
-	// Call retrieveData to retrieve values from sensor and check return code
+	// Call retrieveData to retrieve values from the sensor and check return code
 	MHZ19_RESULT retrieveData();
 	int getCO2();
+	// It isn't ready to use minimum CO2 value, additional calculations have to be applied
+	int getMinCO2();
 	int getTemperature();
 	int getAccuracy();
-	int getMinCO2x24();
 
-	MHZ19_RESULT setAccuracy(MHZ19_MEASUREMENT _acc);
-
+	MHZ19_RESULT setRange(MHZ19_RANGE range);
 	void calibrateZero();
-	void calibrateSpan(int ppm);
+	void calibrateSpan(int span);
 	void setAutoCalibration(bool mode);	
 	
 	void sendCommand(byte command, byte b3 = 0, byte b4 = 0, byte b5 = 0, byte b6 = 0, byte b7 = 0);

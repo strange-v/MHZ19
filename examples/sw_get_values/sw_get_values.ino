@@ -19,6 +19,8 @@ void loop()
   {
     Serial.print(F("CO2: "));
     Serial.println(mhz.getCO2());
+    Serial.print(F("Min CO2: "));
+    Serial.println(mhz.getMinCO2());
     Serial.print(F("Temperature: "));
     Serial.println(mhz.getTemperature());
     Serial.print(F("Accuracy: "));
