@@ -57,7 +57,8 @@ int MHZ19::getAccuracy()
 
 void MHZ19::setAutoCalibration(bool mode)
 {
-	if (mode) {
+	if (mode)
+	{
 		sendCommand(0x79,0xA0,0x00,0x00,0x00,0x00);
 	} else {
 		sendCommand(0x79,0x00,0x00,0x00,0x00,0x00);
@@ -111,9 +112,10 @@ void MHZ19::calibrateZero() {
 
 void MHZ19::calibrateSpan(int ppm) {
 	byte cmd_3,cmd_4;
-	if( ppm < 1000 )	return;
-	cmd_3 = (uint8_t)(ppm/256);
-	cmd_4 = (uint8_t)(ppm%256);
+	if( ppm < 1000 ) { return; }
+	
+	cmd_3 = static_cast<uint8_t>(ppm/256);
+	cmd_4 = static_cast<uint8_t>(ppm%256);
 	sendCommand(0x88,cmd_3,cmd_4,0x00,0x00,0x00);
 }
 
