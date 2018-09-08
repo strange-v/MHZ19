@@ -25,6 +25,16 @@ int MHZ19::getCO2()
 	return _result;
 }
 
+int MHZ19::getMinCO2x24()
+{
+	if (_result == 0)
+	{
+		return bytes2int(_response[6], _response[7]);
+	}
+	return _result;
+}
+
+
 int MHZ19::getTemperature()
 {
 	if (_result == 0)
@@ -39,11 +49,76 @@ int MHZ19::getAccuracy()
 {
 	if (_result == MHZ19_RESULT_OK)
 	{
-		int value = static_cast<int>(_response[4]);
+		int value = static_cast<int>(_response[5]);
 		return value;
 	}
 	return _result;
 }
+
+void MHZ19::setAutoCalibration(bool mode)
+{
+	if (mode)
+	{
+		sendCommand(0x79,0xA0,0x00,0x00,0x00,0x00);
+	} else {
+		sendCommand(0x79,0x00,0x00,0x00,0x00,0x00);
+	}
+
+}
+
+MHZ19_RESULT MHZ19::setAccuracy(MHZ19_MEASUREMENT _acc)
+{
+	switch (_acc) {
+		  case PPM1000:
+			sendCommand(0x86,0x00,0x00,0x00,0x03,0xE8);
+			break;
+		  case PPM2000:
+			sendCommand(0x86,0x00,0x00,0x00,0x07,0xD0);
+			break;
+		  case PPM3000:
+			sendCommand(0x86,0x00,0x00,0x00,0x0B,0xB8);
+			break;
+		  case PPM5000:
+			sendCommand(0x86,0x00,0x00,0x00,0x13,0x88);
+ 			break;
+		  case PPM10000:
+			sendCommand(0x86,0x00,0x00,0x00,0x27,0x10);
+ 			break;
+		  default:
+			sendCommand(0x86,0x00,0x00,0x00,0x07,0xD0);
+	}
+
+	for (int i = 0; i < 9; i++) {
+		_response[i] = 0;
+	}
+
+	memset(_response, 0, 9);
+
+	_result = receiveResponse(&_response);
+
+	if (_result != MHZ19_RESULT_OK) {
+		return _result;
+	}
+	if (_response[1] != 0x99) {
+		_result = MHZ19_RESULT_ERR_FB;
+	}
+	return _result;
+}
+
+
+void MHZ19::calibrateZero() {
+	sendCommand(0x87,0x00,0x00,0x00,0x00,0x00);
+}
+
+void MHZ19::calibrateSpan(int ppm) {
+	byte cmd_3,cmd_4;
+	if( ppm < 1000 ) { return; }
+	
+	cmd_3 = static_cast<uint8_t>(ppm/256);
+	cmd_4 = static_cast<uint8_t>(ppm%256);
+	sendCommand(0x88,cmd_3,cmd_4,0x00,0x00,0x00);
+}
+
 
 void MHZ19::sendCommand(byte command, byte b3, byte b4, byte b5, byte b6, byte b7)
 {
