@@ -1,12 +1,15 @@
 #pragma once
 #include <Arduino.h>
-#include <SoftwareSerial.h>
+
+#define SERIAL_TIMEOUT 500
 
 enum MHZ19_RESULT {
 	MHZ19_RESULT_OK,
+	MHZ19_RESULT_ERR_UNKNOWN,
 	MHZ19_RESULT_ERR_FB,
 	MHZ19_RESULT_ERR_SB,
-	MHZ19_RESULT_ERR_CRC
+	MHZ19_RESULT_ERR_CRC,
+	MHZ19_RESULT_ERR_TIMEOUT
 };
 enum MHZ19_RANGE {
 	MHZ19_RANGE_1000,
@@ -14,14 +17,12 @@ enum MHZ19_RANGE {
 	MHZ19_RANGE_3000,
 	MHZ19_RANGE_5000,
 	MHZ19_RANGE_10000
-
 };
 
 class MHZ19
 {
 public:
-	MHZ19(HardwareSerial * serial);
-	MHZ19(SoftwareSerial * serial);
+	MHZ19(Stream * stream);
 	~MHZ19();
 	// Call retrieveData to retrieve values from the sensor and check return code
 	MHZ19_RESULT retrieveData();
@@ -37,10 +38,10 @@ public:
 	void setAutoCalibration(bool mode);	
 	
 	void sendCommand(byte command, byte b3 = 0, byte b4 = 0, byte b5 = 0, byte b6 = 0, byte b7 = 0);
-	MHZ19_RESULT receiveResponse(byte (*cmd)[9]);	
+	MHZ19_RESULT receiveResponse(byte cmd[9]);	
 private:
-	HardwareSerial * _hs = nullptr;
-	SoftwareSerial * _ss = nullptr;
+	Stream * _serial = nullptr;
+	byte _cmd = 0;
 	byte _response[9];
 	MHZ19_RESULT _result;
 

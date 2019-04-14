@@ -1,19 +1,13 @@
 #include "MHZ19.h"
 
-MHZ19::MHZ19(HardwareSerial * serial)
+MHZ19::MHZ19(Stream * stream)
 {
-	_hs = serial;
-}
-
-MHZ19::MHZ19(SoftwareSerial * serial)
-{
-	_ss = serial;
+	_serial = stream;
 }
 
 MHZ19::~MHZ19()
 {
-	_hs = nullptr;
-	_ss = nullptr;
+	_serial = nullptr;
 }
 
 int MHZ19::getCO2()
@@ -64,31 +58,26 @@ void MHZ19::setAutoCalibration(bool mode)
 MHZ19_RESULT MHZ19::setRange(MHZ19_RANGE range)
 {
 	switch (range) {
-		  case MHZ19_RANGE_1000:
+		case MHZ19_RANGE_1000:
 			sendCommand(0x99, 0x00, 0x00, 0x00, 0x03, 0xE8);
 			break;
-		  case MHZ19_RANGE_2000:
+		case MHZ19_RANGE_2000:
 			sendCommand(0x99, 0x00, 0x00, 0x00, 0x07, 0xD0);
 			break;
-		  case MHZ19_RANGE_3000:
+		case MHZ19_RANGE_3000:
 			sendCommand(0x99, 0x00, 0x00, 0x00, 0x0B, 0xB8);
 			break;
-		  case MHZ19_RANGE_5000:
+		case MHZ19_RANGE_5000:
 			sendCommand(0x99, 0x00, 0x00, 0x00, 0x13, 0x88);
  			break;
-		  case MHZ19_RANGE_10000:
+		case MHZ19_RANGE_10000:
 			sendCommand(0x99, 0x00, 0x00, 0x00, 0x27, 0x10);
  			break;
-		  default:
-			return;
+		default:
+			return MHZ19_RESULT_ERR_UNKNOWN;
 	}
 
-	_result = receiveResponse(&_response);
-
-	if (_response[1] != 0x99) {
-		_result = MHZ19_RESULT_ERR_SB;
-	}
-	return _result;
+	return receiveResponse(_response);
 }
 
 
@@ -105,89 +94,52 @@ void MHZ19::calibrateSpan(int span) {
 	sendCommand(0x88, low, high, 0x00, 0x00, 0x00);
 }
 
+MHZ19_RESULT MHZ19::retrieveData()
+{
+	sendCommand(0x86);
+	return receiveResponse(_response);
+}
+
 void MHZ19::sendCommand(byte command, byte b3, byte b4, byte b5, byte b6, byte b7)
 {
-	byte cmd[9] = { 0xFF,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00 };
-	cmd[2] = command;
-	cmd[3] = b3;
-	cmd[4] = b4;
-	cmd[5] = b5;
-	cmd[6] = b6;
-	cmd[7] = b7;
+	_cmd = command;
+	byte cmd[9] = { 0xFF,0x01,command,b3,b4,b5,b6,b7,0x00 };
 	cmd[8] = calcCRC(cmd);
 
 	write(cmd, 9);	
 }
 
-MHZ19_RESULT MHZ19::receiveResponse(byte (*cmd)[9]) {
-	memset(*cmd, 0, 9);
-
-	if (_hs)
+MHZ19_RESULT MHZ19::receiveResponse(byte cmd[9]) {
+	unsigned long time = millis();
+	while (_serial->available() <= 0)
 	{
-		_hs->readBytes(*cmd, 9);
-	}
-	else
-	{
-		_ss->readBytes(*cmd, 9);
+		if (millis() - time >= SERIAL_TIMEOUT)
+        {  
+            return MHZ19_RESULT_ERR_TIMEOUT;
+		}
 	}
 
-	byte crc = calcCRC(*cmd);
+	memset(cmd, 0, 9);
+	_serial->readBytes(cmd, 9);
+
+	byte crc = calcCRC(cmd);
 
 	MHZ19_RESULT _result = MHZ19_RESULT_OK;
-	if ((*cmd)[0] != 0xFF)
+	if (cmd[0] != 0xFF)
 		_result = MHZ19_RESULT_ERR_FB;
-	if ((*cmd)[8] != crc)
-		_result = MHZ19_RESULT_ERR_CRC;
-	
-	return _result;
-}
-
-
-MHZ19_RESULT MHZ19::retrieveData()
-{
-	byte cmd[9] = { 0xFF,0x01,0x86,0x00,0x00,0x00,0x00,0x00,0x79 };
-	for (int i = 0; i < 9; i++) {
-		_response[i] = 0;
-	}
-
-	write(cmd, 9);
-	
-	memset(_response, 0, 9);
-
-	if (_hs)
-	{
-		_hs->readBytes(_response, 9);
-	}
-	else
-	{
-		_ss->readBytes(_response, 9);
-	}
-
-	byte crc = calcCRC(_response);
-
-	_result = MHZ19_RESULT_OK;
-	if (_response[0] != 0xFF)
-		_result = MHZ19_RESULT_ERR_FB;
-	if (_response[1] != 0x86)
+	if (cmd[1] != _cmd)
 		_result = MHZ19_RESULT_ERR_SB;
-	if (_response[8] != crc)
+	if (cmd[8] != crc)
 		_result = MHZ19_RESULT_ERR_CRC;
 	
 	return _result;
 }
 
-void MHZ19::write(byte *data, byte len)
+void MHZ19::write(byte data[], byte len)
 {
-	if (_hs)
-	{
-		while (_hs->available()) { _hs->read(); }
-		_hs->write(data, len);
-	}
-	else
-	{
-		while (_ss->available()) { _ss->read(); }
-		_ss->write(data, len);
-	}
+	while (_serial->available() > 0) { _serial->read(); }
+	_serial->write(data, len);
+	_serial->flush();
 }
 
 int MHZ19::bytes2int(byte h, byte l)
@@ -197,7 +149,7 @@ int MHZ19::bytes2int(byte h, byte l)
 	return (256 * high) + low;
 }
 
-byte MHZ19::calcCRC(byte * data)
+byte MHZ19::calcCRC(byte data[])
 {
 	byte i;
 	byte crc = 0;
