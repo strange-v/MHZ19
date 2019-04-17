@@ -124,7 +124,7 @@ MHZ19_RESULT MHZ19::receiveResponse(byte cmd[9]) {
 
 	byte crc = calcCRC(cmd);
 
-	MHZ19_RESULT _result = MHZ19_RESULT_OK;
+	_result = MHZ19_RESULT_OK;
 	if (cmd[0] != 0xFF)
 		_result = MHZ19_RESULT_ERR_FB;
 	if (cmd[1] != _cmd)
