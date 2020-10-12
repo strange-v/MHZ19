@@ -17,6 +17,9 @@ In this mode, you can request the data by calling **requestData** method (at thi
 Aduino Nano, Arduino MEGA, ESP8266, ESP32.
 
 ## CHANGE LOG
+##### 1.1.1
+Used include guards instead of #pragma once
+
 ##### 1.1.0
 Refactored code to support both hardware and software serial in a more elegant way and more importantly, to support ESP32.
 

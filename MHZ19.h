@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MHZ19_h
+#define MHZ19_h
 #include <Arduino.h>
 
 #define SERIAL_TIMEOUT 500
@@ -49,4 +50,4 @@ private:
 	int bytes2int(byte h, byte l);
 	byte calcCRC(byte *data);
 };
-
+#endif
