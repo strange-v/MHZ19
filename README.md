@@ -4,6 +4,20 @@ Arduino library for MH-Z19/MH-Z19B CO2 sensors.
 ## MHZ19
 This library uses software or hardware serial to communicate with sensor. Using MHZ19 you can get CO2, temperature and accuracy values (see examples).
 
+### Connection
+| Sensor | Arduino board |
+| ------------- | ------------- |
+| Vin | 5V |
+| GND | GND |
+| Tx | Rx |
+| Rx | Tx |
+
+When using SoftwareSerial library you should define your RX and TX pins in the constructor like this:
+```cpp
+SoftwareSerial ss(13, 12); //rx, tx (D7, D6) on NodeMCU ESP-12e
+```
+And then connect like in the table above, Rx to Tx and Tx to Rx.
+
 ## MHZ19PWM
 With this library, you can get CO2 level using a single pin which supports interrupt. MHZ19PWM supports three modes:
 ##### MHZ_CONTINUOUS_MODE
