@@ -97,7 +97,10 @@ void MHZ19PWM::stop()
 
 void MHZ19PWM::waitForData()
 {
-	while (!isDataReady()) {}
+	while (!isDataReady())
+	{
+		yield();
+	}
 }
 
 #if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32)
