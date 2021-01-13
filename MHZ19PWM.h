@@ -11,7 +11,12 @@ class MHZ19PWM
 {
 public:
 	static MHZ19PWM * instance;
+
+#if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32)
+	static ICACHE_RAM_ATTR void isr();
+#else 
 	static void isr();
+#endif
 
 	MHZ19PWM(byte pin, MHZ_MODE mode = MHZ_DELAYED_MODE);
 	~MHZ19PWM();
@@ -34,5 +39,11 @@ private:
 	void start();
 	void stop();
 	void waitForData();
+
+#if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32)
+	void ICACHE_RAM_ATTR isrInternal();
+#else
 	void isrInternal();
+#endif
+
 };
