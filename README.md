@@ -31,6 +31,9 @@ In this mode, you can request the data by calling **requestData** method (at thi
 Aduino Nano, Arduino MEGA, ESP8266, ESP32.
 
 ## CHANGE LOG
+##### 1.1.2
+Fixed bug in MHZ19PWM, now it should work on ESP8266 and ESP32
+
 ##### 1.1.1
 Used include guards instead of #pragma once
 
