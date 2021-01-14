@@ -2,11 +2,7 @@
 
 MHZ19PWM * MHZ19PWM::instance = nullptr;
 
-#if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32)
-void ICACHE_RAM_ATTR MHZ19PWM::isr()
-#else
-void MHZ19PWM::isr()
-#endif
+void ISR_FN_ATTR MHZ19PWM::isr()
 {
 	if (MHZ19PWM::instance)
 		MHZ19PWM::instance->isrInternal();
@@ -103,11 +99,7 @@ void MHZ19PWM::waitForData()
 	}
 }
 
-#if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32)
-void ICACHE_RAM_ATTR MHZ19PWM::isrInternal()
-#else
-void MHZ19PWM::isrInternal()
-#endif
+void ISR_FN_ATTR MHZ19PWM::isrInternal()
 {
 	int value = digitalRead(_pin);
 	unsigned long ms = micros();
