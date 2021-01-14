@@ -1,6 +1,14 @@
 #pragma once
 #include <Arduino.h>
 
+#if defined(ARDUINO_ARCH_ESP8266)
+#define ISR_ATTR ICACHE_RAM_ATTR
+#elif defined(ARDUINO_ARCH_ESP32)
+#define ISR_ATTR IRAM_ATTR
+#else
+#define ISR_ATTR
+#endif
+
 enum MHZ_MODE {
 	MHZ_CONTINUOUS_MODE,
 	MHZ_DELAYED_MODE,
@@ -11,7 +19,7 @@ class MHZ19PWM
 {
 public:
 	static MHZ19PWM * instance;
-	static void isr();
+	static void ISR_ATTR isr();
 
 	MHZ19PWM(byte pin, MHZ_MODE mode = MHZ_DELAYED_MODE);
 	~MHZ19PWM();
@@ -34,5 +42,5 @@ private:
 	void start();
 	void stop();
 	void waitForData();
-	void isrInternal();
+	void ISR_ATTR isrInternal();
 };

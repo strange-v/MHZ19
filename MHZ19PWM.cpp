@@ -93,7 +93,10 @@ void MHZ19PWM::stop()
 
 void MHZ19PWM::waitForData()
 {
-	while (!isDataReady()) {}
+	while (!isDataReady())
+	{
+		yield();
+	}
 }
 
 void MHZ19PWM::isrInternal()
