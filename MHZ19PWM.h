@@ -19,7 +19,7 @@ class MHZ19PWM
 {
 public:
 	static MHZ19PWM * instance;
-	static void isr();
+	static void ISR_ATTR isr();
 
 	MHZ19PWM(byte pin, MHZ_MODE mode = MHZ_DELAYED_MODE);
 	~MHZ19PWM();
@@ -42,5 +42,5 @@ private:
 	void start();
 	void stop();
 	void waitForData();
-	void isrInternal();
+	void ISR_ATTR isrInternal();
 };
