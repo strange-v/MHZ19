@@ -2,7 +2,7 @@
 
 MHZ19PWM * MHZ19PWM::instance = nullptr;
 
-void ISR_FN_ATTR MHZ19PWM::isr()
+void ISR_ATTR MHZ19PWM::isr()
 {
 	if (MHZ19PWM::instance)
 		MHZ19PWM::instance->isrInternal();
@@ -99,7 +99,7 @@ void MHZ19PWM::waitForData()
 	}
 }
 
-void ISR_FN_ATTR MHZ19PWM::isrInternal()
+void ISR_ATTR MHZ19PWM::isrInternal()
 {
 	int value = digitalRead(_pin);
 	unsigned long ms = micros();
